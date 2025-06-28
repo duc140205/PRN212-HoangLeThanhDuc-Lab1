@@ -48,7 +48,6 @@ namespace WPFApp
             try
             {
                 var productList = iProductService.GetProducts();
-                dgData.ItemsSource = null;
                 dgData.ItemsSource = productList;
             }
             catch (Exception ex)
@@ -99,26 +98,18 @@ namespace WPFApp
 
         private void dgData_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            try
-            {
-                // Kiểm tra xem DataGrid có item nào được chọn không
-                if (dgData.SelectedItem != null)
-                {
-                    // Lấy đối tượng Product được chọn và ép kiểu
-                    Product product = (Product)dgData.SelectedItem;
-
-                    // Điền thông tin vào các ô input
-                    txtProductID.Text = product.ProductId.ToString();
-                    txtProductName.Text = product.ProductName;
-                    txtPrice.Text = product.UnitPrice.ToString();
-                    txtUnitsInStock.Text = product.UnitsInStock.ToString();
-                    cboCategory.SelectedValue = product.CategoryId;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error on selecting product");
-            }
+            DataGrid dataGrid = sender as DataGrid;
+            DataGridRow row = (DataGridRow)dataGrid.ItemContainerGenerator
+                .ContainerFromIndex(dataGrid.SelectedIndex);
+            DataGridCell RowColumn = dataGrid.Columns[0]
+                .GetCellContent(row).Parent as DataGridCell;
+            string id = ((TextBlock)RowColumn.Content).Text;
+            Product product = iProductService.GetProductById(Int32.Parse(id));
+            txtProductID.Text = product.ProductId.ToString();
+            txtProductName.Text = product.ProductName;
+            txtPrice.Text = product.UnitPrice.ToString();
+            txtUnitsInStock.Text = product.UnitsInStock.ToString();
+            cboCategory.SelectedValue = product.CategoryId;
         }
 
         private void btnClose_Click(object sender, RoutedEventArgs e)
